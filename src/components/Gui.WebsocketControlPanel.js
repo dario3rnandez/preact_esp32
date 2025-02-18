@@ -17,9 +17,10 @@ export default function WebsocketControlPanel(props) {
     const [posting, setPosting] = useState(false);
     const [fetchError, setFetchError] = useState("");
     const [fetchSuccess, setFetchSuccess] = useState("");
+    const [showData, setShowData] = useState(false);
     const [postError, setPostError] = useState("");
     const [postSuccess, setPostSuccess] = useState("");
-    const [showData, setShowData] = useState(false);
+    const [initialLoad, setInitialLoad] = useState(true); 
 
     // Estados de datos
     const [server_ocpp_url, setBackendUrl] = useState("");
@@ -39,20 +40,30 @@ export default function WebsocketControlPanel(props) {
     const [temp_ocpp_auth_key, setTempAuthKey] = useState("");
 
     useEffect(() => {
-        if (props.autofetch) fetchValues();
-    }, [props.autofetch]);
+        fetchValues();
+    }, []);
 
     const fetchValues = () => {
         if (fetching) return;
         setFetching(true);
         DataService.get("/get_general_data")
             .then(resp => {
+                console.log(resp);
                 setBackendUrl(resp.server_ocpp_url);
+                setTempBackendUrl(resp.server_ocpp_url);
+
                 setChargeBoxId(resp.ocpp_charger_id);
+                setTempChargeBoxId(resp.ocpp_charger_id);
+                
                 setAuthorizationKey(resp.ocpp_auth_key);
+                setTempAuthKey(resp.ocpp_auth_key);
+                
                 setShowData(true);
-                setFetchSuccess(`Datos actualizados - ${DateFormatter.fullDate(new Date())}`);
+                if (!initialLoad) {
+                    setFetchSuccess(`Datos actualizados - ${DateFormatter.fullDate(new Date())}`);
+                }
                 setFetchError("");
+                setInitialLoad(false);
             })
             .catch(() => setFetchError("Error al cargar datos"))
             .finally(() => setFetching(false));
@@ -66,9 +77,11 @@ export default function WebsocketControlPanel(props) {
             ocpp_auth_key: temp_ocpp_auth_key
         })
             .then(resp => {
-                if (resp.status === "success") {
-                    setPostSuccess("Cambios guardados exitosamente");
+                console.log(resp.status);
+                if (resp.status === "ok") {
+                    
                     fetchValues(); // Recargar datos
+                    setPostSuccess("Cambios guardados exitosamente");  
                 }
             })
             .catch(() => setPostError("Error al guardar cambios"))
@@ -94,11 +107,11 @@ export default function WebsocketControlPanel(props) {
                 class="editable-input"
             />
         ) : (
-            <span 
+            <span
                 onDblClick={() => handleDoubleClick(field)}
                 class="editable-field"
             >
-                {value || <em>Doble clic para editar</em>}
+                {value }
             </span>
         );
     };
@@ -106,7 +119,7 @@ export default function WebsocketControlPanel(props) {
     return (
         <fieldset class="is-col">
             <legend>Configuración General</legend>
-            
+
             {/* Sección de datos */}
             {showData && (
                 <div class="data-section">
@@ -114,12 +127,12 @@ export default function WebsocketControlPanel(props) {
                         <label>Backend URL:</label>
                         {renderEditableField("backendUrl", temp_server_ocpp_url, setTempBackendUrl)}
                     </div>
-                    
+
                     <div class="data-row">
                         <label>Chargebox ID:</label>
                         {renderEditableField("chargeBoxId", temp_ocpp_charger_id, setTempChargeBoxId)}
                     </div>
-                    
+
                     <div class="data-row">
                         <label>Authorization Key:</label>
                         {renderEditableField("authorizationKey", temp_ocpp_auth_key, setTempAuthKey)}
@@ -127,47 +140,61 @@ export default function WebsocketControlPanel(props) {
 
                     {/* Botones de acción */}
                     <div class="action-buttons">
-                        <button 
+                        <button
                             class={`button primary ${posting ? "is-loading" : ""}`}
                             onClick={handleUpdate}
                             disabled={posting}
                         >
                             <IUpload /> Guardar Cambios
                         </button>
-                        
-                        {/* <FetchButton 
-                            fetching={fetching} 
-                            onClick={fetchValues}
-                            class="secondary"
-                        >
-                            <ICopy /> Recargar Datos
-                        </FetchButton> */}
+
                     </div>
                 </div>
             )}
 
-            {/* Mensajes de estado */}
-            {fetchError && (
+            {
+                fetchError != ""
+                &&
                 <div class="alert is-error">
-                    <IForbidden /> {fetchError}
+                    <IForbidden />
+                    {fetchError}
                 </div>
-            )}
-            
-            {postSuccess && (
+            }
+            {
+                fetchSuccess != ""
+                &&
                 <div class="alert is-success">
-                    <ICheck /> {postSuccess}
+                    <ICheck />
+                    {fetchSuccess}
                 </div>
-            )}
+            }
+            {
+                postError != ""
+                &&
+                <div class="alert is-error">
+                    <IForbidden />
+                    {postError}
+                </div>
+            }
+            {
+                postSuccess != ""
+                &&
+                <div class="alert is-success">
+                    <ICheck />
+                    {postSuccess}
+                </div>
+
+            }
 
             {/* Botón inicial de carga */}
             {!showData && (
                 <div class="initial-load">
-                    <FetchButton 
+                    <FetchButton
                         fetching={fetching}
                         onClick={fetchValues}
                         class="primary"
                     >
-                        <IUpload /> Cargar Datos
+                        Cargar Datos
                     </FetchButton>
                 </div>
             )}
