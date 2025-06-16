@@ -1070,7 +1070,8 @@ a.label {
     padding: .5em 1.6em;
     box-shadow: none;
     cursor: pointer;
-    line-height: 1.2
+    line-height: 1.2;
+    margin-top:16px;
 }
 .button i,
 .button span {

@@ -12,6 +12,7 @@ import Connectors from "./Path.Connectors.js";
 import EraseNvs from "./Path.erase_nvs.js";
 import FormatPartition from "./Path.format_partition.js";
 import Restart from "./Path.restart.js";
+import Login from "./Path.Login.js";
 
 const Path = createContext()
 
@@ -20,13 +21,17 @@ export default class App extends Component {
     constructor() {
         super();
         this.state = {
-            path : "format_partition"
+            path : "general_config",
+            isLoggedIn: false
         }
     }
     navigation(){
         return {
             setPath:(newPath)=>{
                 this.setState({path:newPath});
+            },
+            setLoggedIn: (value) => {
+                this.setState({isLoggedIn: value});
             },
             path:this.state.path,
             closeSidebarMobile:()=>{
@@ -86,6 +91,19 @@ export default class App extends Component {
     }
 
     render(){
+        if (!this.state.isLoggedIn) {
+            return (
+                <div class="app">
+                    <div class="header">
+                        {/* <h1>Inicio de Sesión</h1> */}
+                    </div>
+                    <main class="login-container">
+                        <Login nav={this.navigation()} />
+                    </main>
+                </div>
+            )
+        }
+
         return (
             <div class="app">
                 <Header toggleSidebar={this.toggleSidebar}></Header>

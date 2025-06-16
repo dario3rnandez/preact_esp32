@@ -76,7 +76,7 @@ export default function NetworkConfigControlPanel(props) {
 
     const handleUpdate = () => {
         setPosting(true);
-        DataService.post("/post_general_data", {
+        DataService.post("/post_network_data", {
             ip: temp_ip,
             netmask: temp_netmask,
             gateway: temp_gateway

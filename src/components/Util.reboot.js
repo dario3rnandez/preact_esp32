@@ -1,15 +1,14 @@
-import { h } from "preact";
-import { useEffect, useState } from "preact/hooks";
+import { useState, useEffect } from "preact/hooks";
 import DataService from "../DataService";
 
-export default function RebootCountdown() {
-    const [countdown, setCountdown] = useState(30); // Contador de 30 segundos
-    const [isRebooting, setIsRebooting] = useState(false); // Estado para controlar el reinicio
+export function useRebootCountdown() {
+    const [countdown, setCountdown] = useState(0); // Contador inicializado en 0
+    const [isRebooting, setIsRebooting] = useState(false); // Estado de reinicio
 
     // Función para iniciar el reinicio
     const startReboot = () => {
         setIsRebooting(true); // Activar el estado de reinicio
-        setCountdown(30); // Reiniciar el contador
+        setCountdown(30); // Iniciar el contador en 30 segundos
 
         // Hacer el POST a /reboot
         DataService.post("/reboot", {})
@@ -35,17 +34,9 @@ export default function RebootCountdown() {
         }
     }, [isRebooting, countdown]);
 
-    return (
-        <div class="reboot-countdown">
-            {isRebooting ? (
-                <div class="reboot-message">
-                    <p>El dispositivo se reiniciará en {countdown} segundos...</p>
-                </div>
-            ) : (
-                <button class="button is-warning" onClick={startReboot}>
-                    Reiniciar Dispositivo
-                </button>
-            )}
-        </div>
-    );
+    return {
+        countdown,
+        isRebooting,
+        startReboot,
+    };
 }

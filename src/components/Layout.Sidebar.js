@@ -5,7 +5,7 @@ import { h, Component } from "preact";
 import SidebarItem from "./Layout.SidebarItem.js";
 import IWifi from "./icons/IWifi.svg";
 import ILock from "./icons/ILock.svg";
-import IMatthLogo from "./icons/IMatthLogo.svg";
+import IMatthLogo from "./icons/me-corp.svg";
 import IServer from "./icons/IServer.svg";
 import IControls from "./icons/IControls.svg";
 import IPower from "./icons/IPower.svg";
@@ -22,7 +22,7 @@ export default class Sidebar extends Component {
             <aside class="sidebar">
                 <div class="sb-header">
                     <IMatthLogo></IMatthLogo>
-                    <div>MicroOcpp</div>
+                    <div>Ocpp DashBoard</div>
                 </div>
                 <div class="divider" />
                 <SidebarItem route="general_config" nav={props.nav}>
