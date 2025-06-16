@@ -13,7 +13,10 @@ import DateFormatter from "../DateFormatter";
 import { useRebootCountdown } from "./Util.reboot";
 
 
-export default function NetworkConfigControlPanel(props) {
+
+
+
+export default function ClientSocketConfigControlPanel(props) {
     // Estados principales
     const [fetching, setFetching] = useState(false);
     const [posting, setPosting] = useState(false);
@@ -22,24 +25,21 @@ export default function NetworkConfigControlPanel(props) {
     const [showData, setShowData] = useState(false);
     const [postError, setPostError] = useState("");
     const [postSuccess, setPostSuccess] = useState("");
-    const [initialLoad, setInitialLoad] = useState(true); 
+    const [initialLoad, setInitialLoad] = useState(true);
 
-    // Estados de datos
-    const [ip, setIp] = useState("");
-    const [netmask, setNetmask] = useState("");
-    const [gateway, setGateway] = useState("");
+    //Estados de datos
+    const [ip_logger, setIpLogger] = useState("");
+    const [port_logger, setPortLogger] = useState("");
 
-    // Estados de edición
+    //Estados de edición
     const [editing, setEditing] = useState({
-        ip: false,
-        netmask: false,
-        gateway: false
+        ip_logger: false,
+        port_logger: false
     });
 
-    // Estados temporales para edición   
-    const [temp_ip, setTempIp] = useState("");
-    const [temp_netmask, setTempNetmask] = useState("");
-    const [temp_gateway, setTempGateway] = useState("");
+    //Estados temporales para edición
+    const [temp_ip_logger, setTempIpLogger] = useState("");
+    const [temp_port_logger, setTempPortLogger] = useState("");
 
     const { countdown, isRebooting, startReboot } = useRebootCountdown();
 
@@ -50,19 +50,15 @@ export default function NetworkConfigControlPanel(props) {
     const fetchValues = () => {
         if (fetching) return;
         setFetching(true);
-        DataService.get("/get_network_data")
+        DataService.get("/get_logger_data")
             .then(resp => {
                 console.log(resp);
-               
-                setTempIp(resp.ip);
-                setIp(resp.ip);
+                setIpLogger(resp.ip_logger);
+                setTempIpLogger(resp.ip_logger);
 
-                setTempNetmask(resp.netmask);
-                setNetmask(resp.netmask);
+                setPortLogger(resp.port_logger);
+                setTempPortLogger(resp.port_logger);
 
-                setTempGateway(resp.gateway);
-                setGateway(resp.gateway);
-                
                 setShowData(true);
                 if (!initialLoad) {
                     setFetchSuccess(`Datos actualizados - ${DateFormatter.fullDate(new Date())}`);
@@ -75,32 +71,28 @@ export default function NetworkConfigControlPanel(props) {
     };
 
     const handleUpdate = () => {
+        if (posting) return;
         setPosting(true);
-        DataService.post("/post_general_data", {
-            ip: temp_ip,
-            netmask: temp_netmask,
-            gateway: temp_gateway
+        DataService.post("/post_logger_data", {
+            ip_logger: temp_ip_logger,
+            port_logger: temp_port_logger
         })
-            .then(resp => {
-                console.log(resp.status);
-                if (resp.status === "ok") {
-                    
-                    fetchValues(); // Recargar datos
-                    setPostSuccess("Cambios guardados exitosamente");  
-                    startReboot();
-                }
+            .then(() => {
+                fetchValues();
+                setPostSuccess(`Datos actualizados - ${DateFormatter.fullDate(new Date())}`);
+                startReboot();
             })
-            .catch(() => setPostError("Error al guardar cambios"))
+            .catch(() => setPostError("Error al guardar datos"))
             .finally(() => setPosting(false));
-    };
+    }
 
     const handleDoubleClick = (field) => {
-        // Copiar valores actuales a temporales
-        setTempIp(ip);
-        setTempNetmask(netmask);
-        setTempGateway(gateway);
+        //Copiar valores actuales a temporales
+        setTempIpLogger(ip_logger);
+        setTempPortLogger(port_logger);
         setEditing(prev => ({ ...prev, [field]: true }));
-    };
+    }
+
 
     const renderEditableField = (field, value, setter) => {
         return editing[field] ? (
@@ -117,32 +109,30 @@ export default function NetworkConfigControlPanel(props) {
                 onDblClick={() => handleDoubleClick(field)}
                 class="editable-field"
             >
-                {value }
+                {value}
             </span>
         );
     };
 
     return (
         <fieldset class="is-col">
-            <legend>Configuración General</legend>
+            <legend>Configuración logs</legend>
 
             {/* Sección de datos */}
             {showData && (
                 <div class="data-section">
                     <div class="data-row">
-                        <label>Ip:</label>
-                        {renderEditableField("ip", temp_ip, setTempIp)}
+                        <label>IP Logger</label>
+                        {renderEditableField("ip_logger", temp_ip_logger, setTempIpLogger)}
                     </div>
 
                     <div class="data-row">
-                        <label>NetMask</label>
-                        {renderEditableField("netmask", temp_netmask, setTempNetmask)}
+                        <label>Puerto Logger</label>
+                        {renderEditableField("port_logger", temp_port_logger, setTempPortLogger)}
                     </div>
 
-                    <div class="data-row">
-                        <label>gateway</label>
-                        {renderEditableField("gateway", temp_gateway, setTempGateway)}
-                    </div>
+
+
 
                     {/* Botones de acción */}
                     <div class="action-buttons">
@@ -160,7 +150,6 @@ export default function NetworkConfigControlPanel(props) {
                             <p>El dispositivo se reiniciará en {countdown} segundos...</p>
                         </div>
                     )}
-
                 </div>
             )}
 
@@ -197,7 +186,6 @@ export default function NetworkConfigControlPanel(props) {
                 </div>
 
             }
-
             {/* Botón inicial de carga */}
             {!showData && (
                 <div class="initial-load">
@@ -212,4 +200,5 @@ export default function NetworkConfigControlPanel(props) {
             )}
         </fieldset>
     );
+
 }

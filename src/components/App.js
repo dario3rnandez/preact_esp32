@@ -2,14 +2,16 @@ import { h, Component, createContext  } from "preact";
 
 
 import Sidebar from "./Layout.Sidebar.js";
-import Network from "./Path.Network.js";
+import OtaUpdateConfig from "./Path.OtaUpdateConfig.js";
 import Security from "./Path.Security.js";
 import Header from "./Layout.Header.js";
 import Status from "./Path.Status.js";
-import Websocket16 from "./Path.Websocket16.js";
+import GeneralConfig from "./Path.GeneralConfig.js";
 import Station from "./Path.Station.js";
 import Connectors from "./Path.Connectors.js";
-
+import EraseNvs from "./Path.erase_nvs.js";
+import FormatPartition from "./Path.format_partition.js";
+import Restart from "./Path.restart.js";
 
 const Path = createContext()
 
@@ -18,7 +20,7 @@ export default class App extends Component {
     constructor() {
         super();
         this.state = {
-            path : "general_config"
+            path : "format_partition"
         }
     }
     navigation(){
@@ -49,11 +51,11 @@ export default class App extends Component {
         switch(path){
             case "general_config":
                 return (
-                    <Websocket16 nav={this.navigation()} />
+                    <GeneralConfig nav={this.navigation()} />
                 )
             case "certificates_config":
                 return (
-                    <Websocket16 nav={this.navigation()} />
+                    <Security nav={this.navigation()} />
                 )
             case "network_config":
                 return (
@@ -65,19 +67,19 @@ export default class App extends Component {
                 )
             case "ota_update":
                 return (
-                    <Network nav={this.navigation()} />
+                    <OtaUpdateConfig nav={this.navigation()} />
                 )
             case "erase_nvs":
                 return (
-                    <Security nav={this.navigation()} />
+                    <EraseNvs nav={this.navigation()} />
                 )
             case "format_partition":
                 return (
-                    <Security nav={this.navigation()} />
+                    <FormatPartition nav={this.navigation()} />
                 )
             case "restart":
                 return (
-                    <Security nav={this.navigation()} />
+                    <Restart nav={this.navigation()} />
                 )
             
         }  

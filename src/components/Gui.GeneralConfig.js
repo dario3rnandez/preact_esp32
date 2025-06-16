@@ -10,8 +10,9 @@ import IForbidden from "./icons/IForbidden.svg";
 import ITrash from "./icons/ITrash.svg";
 import IUpload from "./icons/IUpload.svg";
 import DateFormatter from "../DateFormatter";
+import { useRebootCountdown } from "./Util.reboot";
 
-export default function WebsocketControlPanel(props) {
+export default function GeneralConfigControlPanel(props) {
     // Estados principales
     const [fetching, setFetching] = useState(false);
     const [posting, setPosting] = useState(false);
@@ -39,9 +40,12 @@ export default function WebsocketControlPanel(props) {
     const [temp_ocpp_charger_id, setTempChargeBoxId] = useState("");
     const [temp_ocpp_auth_key, setTempAuthKey] = useState("");
 
+    const { countdown, isRebooting, startReboot } = useRebootCountdown();
+
     useEffect(() => {
         fetchValues();
     }, []);
+    
 
     const fetchValues = () => {
         if (fetching) return;
@@ -82,6 +86,7 @@ export default function WebsocketControlPanel(props) {
                     
                     fetchValues(); // Recargar datos
                     setPostSuccess("Cambios guardados exitosamente");  
+                    startReboot();
                 }
             })
             .catch(() => setPostError("Error al guardar cambios"))
@@ -149,6 +154,12 @@ export default function WebsocketControlPanel(props) {
                         </button>
 
                     </div>
+                    {isRebooting && (
+                        <div class="reboot-message">
+                            <p>El dispositivo se reiniciará en {countdown} segundos...</p>
+                        </div>
+                    )}
+
                 </div>
             )}
 
