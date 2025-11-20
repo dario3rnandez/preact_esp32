@@ -4,3 +4,4 @@ server/node_modules
 .env.production
 .vscode
 .DS_Store
+.env.*

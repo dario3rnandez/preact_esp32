@@ -2,9 +2,17 @@
     "scripts": {
         "dev": "webpack serve --config webpack_config/webpack.dev.js --open",
         "build": "webpack --config webpack_config/webpack.prod.js",
+        "build:ocpp": "EVSE_VARIANT=OCPP webpack --config webpack_config/webpack.prod.js --env variant=ocpp",
+        "build:gbt": "EVSE_VARIANT=GBT webpack --config webpack_config/webpack.prod.js --env variant=gbt",
+        "build:ccs": "EVSE_VARIANT=CCS webpack --config webpack_config/webpack.prod.js --env variant=ccs",
+        "build:ac": "EVSE_VARIANT=AC webpack --config webpack_config/webpack.prod.js --env variant=ac",
         "test": "jest --watch",
         "lint": "eslint src tests --fix",
-        "compress": "node ./deploy/bundle_all.js"
+        "compress": "node ./deploy/bundle_all.js",
+        "dev:ocpp": "EVSE_VARIANT=OCPP webpack serve --config webpack_config/webpack.dev.js --env variant=ocpp --open",
+        "dev:gbt": "EVSE_VARIANT=GBT webpack serve --config webpack_config/webpack.dev.js --env variant=gbt --open",
+        "dev:ccs": "EVSE_VARIANT=CCS webpack serve --config webpack_config/webpack.dev.js --env variant=ccs --open",
+        "dev:ac": "EVSE_VARIANT=AC webpack serve --config webpack_config/webpack.dev.js --env variant=ac --open"
     },
     "dependencies": {
         "@babel/plugin-transform-react-jsx": "^7.17.12",

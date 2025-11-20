@@ -26,30 +26,43 @@ class DataServiceClass {
     async request(endpoint, options) {
         let url = this.apiRoot + endpoint;
         let response;
-        if(NODE_ENV === "development"){
-            //this block is only included in the development build
-            try{
+        try{
+            if(NODE_ENV === "development"){
                 console.log("Fetch - Options: ", options);
-                response = await fetch(url, options);
-            }catch(error){
-                console.error("The api request could not complete successfully", `URL: ${url}`, body)
-                throw error;
             }
+            response = await fetch(url, options);
+            
+            // Parse JSON response (even if HTTP status is not ok, backend may return JSON with error details)
             let response_raw, response_json;
             try{
                 response_raw = await response.text();
                 response_json = JSON.parse(response_raw);
             }catch(error){
                 console.error("Could not parse api response as JSON", `Response: ${response_raw}`);
+                // If we can't parse JSON and response is not ok, throw HTTP error
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}, body: ${response_raw}`);
+                }
                 throw error;
             }
-            console.log("Response: ", response_json);
+            
+            // Check if response is ok - but still return JSON if it has error details
+            if (!response.ok) {
+                console.error(`HTTP error! status: ${response.status}, body:`, response_json);
+                // If JSON has error status, return it so caller can handle it
+                if (response_json.status === "error") {
+                    return response_json;
+                }
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            if(NODE_ENV === "development"){
+                console.log("Response: ", response_json);
+            }
             return response_json;
-        }
-        if(NODE_ENV === "production"){
-            //this block is only included in the production build
-            response = await fetch(url, options);
-            return response.json();
+        }catch(error){
+            console.error("The api request could not complete successfully", `URL: ${url}`, error);
+            throw error;
         }
     }
 }

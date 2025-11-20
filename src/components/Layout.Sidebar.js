@@ -1,4 +1,6 @@
 import "./component_styles/sidebar.css";
+import menuConfig from '../menuConfig';
+import { DASHBOARD_TITLE } from '../menuConfig';
 
 import { h, Component } from "preact";
 
@@ -18,45 +20,23 @@ export default class Sidebar extends Component {
     }
 
     render(props) {
+        const icons = { IWifi, ILock, IMatthLogo, IServer, IControls, IPower, IEvse };
         return (
             <aside class="sidebar">
                 <div class="sb-header">
                     <IMatthLogo></IMatthLogo>
-                    <div>Ocpp DashBoard</div>
+                    <div>{DASHBOARD_TITLE}</div>
                 </div>
                 <div class="divider" />
-                <SidebarItem route="general_config" nav={props.nav}>
-                    <IControls />
-                    <span>Configuración general</span>
-                </SidebarItem>
-                <SidebarItem route="certificates_config" nav={props.nav}>
-                    <IServer />
-                    <span>OCPP certificados</span>
-                </SidebarItem>
-                <SidebarItem route="network_config" nav={props.nav}>
-                    <IWifi />
-                    <span>Configuración de red</span>
-                </SidebarItem>
-                <SidebarItem route="connectors" nav={props.nav}>
-                    <IEvse />
-                    <span>Conectores</span>
-                </SidebarItem>
-                <SidebarItem route="ota_update" nav={props.nav}>
-                    <IWifi />
-                    <span>OTA Update</span>
-                </SidebarItem>
-                <SidebarItem route="erase_nvs" nav={props.nav}>
-                    <IServer />
-                    <span>Borrar NVS</span>
-                </SidebarItem>
-                <SidebarItem route="format_partition" nav={props.nav}>
-                    <IServer />
-                    <span>Formatear partición</span>
-                </SidebarItem>
-                <SidebarItem route="restart" nav={props.nav}>
-                    <IPower />
-                    <span>Reiniciar</span>
-                </SidebarItem>
+                {menuConfig.map(item => {
+                    const Icon = icons[item.icon] || IControls;
+                    return (
+                        <SidebarItem key={item.route} route={item.route} nav={props.nav}>
+                            <Icon />
+                            <span>{item.label}</span>
+                        </SidebarItem>
+                    );
+                })}
                 <div class="divider" />
             </aside>
         )

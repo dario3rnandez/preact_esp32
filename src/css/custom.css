@@ -125,4 +125,50 @@ td svg{
 
 .btn-primary:hover {
     background: #0056b3;
+}
+
+/* Switch deslizante moderno */
+.switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: auto;
+    margin-right: 16px;
+}
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.switch .slider {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    background-color: var(--sidebar-bg, #333);
+    border-radius: 24px;
+    transition: background 0.3s;
+}
+.switch .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #fff;
+    border-radius: 50%;
+    transition: transform 0.3s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+.switch input:checked + .slider {
+    background-color: var(--theme-color, #0c3dd7);
+}
+.switch input:checked + .slider:before {
+    transform: translateX(20px);
+}
+.switch .label-text {
+    margin-left: 10px;
+    font-size: 14px;
+    color: var(--sidebar-txt, #efefef);
 } 

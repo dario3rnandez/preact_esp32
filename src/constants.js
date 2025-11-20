@@ -1,5 +1,7 @@
-const API_ROOT = process.env.API_ROOT;
-const NODE_ENV = process.env.NODE_ENV;
+// En desarrollo, usar ruta relativa para que webpack-dev-server haga proxy
+// En producción, usar la URL completa del servidor
+const API_ROOT = process.env.NODE_ENV === "development" ? "" : (process.env.API_ROOT || "");
+const NODE_ENV = process.env.NODE_ENV || "development";
 
 const API_ENDPOINT_BACKEND_URL = "/ocpp_backend";
 const API_ENDPOINT_EV_STATUS   = "/status_ev";
@@ -15,4 +17,10 @@ export {
 	API_ENDPOINT_EVSE_STATUS,
 	API_ENDPOINT_USER_AUTHORIZATION,
 	API_ENDPOINT_CERTIFICATE
+};
+
+export const AUTH_MODE = {
+	AUTH_LOCAL: 'LOCAL',
+	AUTH_OCPP: 'OCPP',
+	AUTH_RFID: 'RFID'
 };

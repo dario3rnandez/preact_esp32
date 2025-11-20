@@ -95,10 +95,15 @@ export default function NetworkConfigControlPanel(props) {
     };
 
     const handleDoubleClick = (field) => {
-        // Copiar valores actuales a temporales
-        setTempIp(ip);
-        setTempNetmask(netmask);
-        setTempGateway(gateway);
+        // Solo copiar el valor del campo que se está editando a su estado temporal
+        // No sobrescribir otros campos que puedan estar siendo editados
+        if (field === "ip") {
+            setTempIp(ip);
+        } else if (field === "netmask") {
+            setTempNetmask(netmask);
+        } else if (field === "gateway") {
+            setTempGateway(gateway);
+        }
         setEditing(prev => ({ ...prev, [field]: true }));
     };
 

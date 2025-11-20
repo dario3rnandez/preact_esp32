@@ -87,9 +87,13 @@ export default function ClientSocketConfigControlPanel(props) {
     }
 
     const handleDoubleClick = (field) => {
-        //Copiar valores actuales a temporales
-        setTempIpLogger(ip_logger);
-        setTempPortLogger(port_logger);
+        // Solo copiar el valor del campo que se está editando a su estado temporal
+        // No sobrescribir otros campos que puedan estar siendo editados
+        if (field === "ip_logger") {
+            setTempIpLogger(ip_logger);
+        } else if (field === "port_logger") {
+            setTempPortLogger(port_logger);
+        }
         setEditing(prev => ({ ...prev, [field]: true }));
     }
 

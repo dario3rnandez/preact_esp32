@@ -13,6 +13,8 @@ import EraseNvs from "./Path.erase_nvs.js";
 import FormatPartition from "./Path.format_partition.js";
 import Restart from "./Path.restart.js";
 import Login from "./Path.Login.js";
+import menuConfig from '../menuConfig';
+import { DASHBOARD_TITLE } from '../menuConfig';
 
 const Path = createContext()
 
@@ -20,15 +22,21 @@ export default class App extends Component {
 
     constructor() {
         super();
+        const allowedRoutes = menuConfig.map(item => item.route);
+        this.allowedRoutes = allowedRoutes;
         this.state = {
-            path : "general_config",
+            path : allowedRoutes[0],
             isLoggedIn: false
         }
     }
     navigation(){
         return {
             setPath:(newPath)=>{
-                this.setState({path:newPath});
+                if (this.allowedRoutes.includes(newPath)) {
+                    this.setState({path:newPath});
+                } else {
+                    this.setState({path:this.allowedRoutes[0]});
+                }
             },
             setLoggedIn: (value) => {
                 this.setState({isLoggedIn: value});
@@ -41,6 +49,10 @@ export default class App extends Component {
     }
 
     currentView(){
+        if (!this.allowedRoutes.includes(this.state.path)) {
+            this.setState({path: this.allowedRoutes[0]});
+            return null;
+        }
         return this.view(this.state.path)
     }
 
@@ -91,6 +103,9 @@ export default class App extends Component {
     }
 
     render(){
+        if (typeof window !== 'undefined') {
+            document.title = DASHBOARD_TITLE;
+        }
         if (!this.state.isLoggedIn) {
             return (
                 <div class="app">
