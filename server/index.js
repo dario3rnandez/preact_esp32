@@ -7,12 +7,25 @@ app.use(cors());
 app.use(bodyParser.json());
 const port = 8000;
 
+// Constantes para número de conectores (deben coincidir con general_config.h)
+const MIN_NUM_CONNECTORS = 1;
+const MAX_NUM_CONNECTORS = 4;
+const DEFAULT_NUM_CONNECTORS = 2;
+
 // Datos mock para OCPP
 let ocpp_nvs_data_t = {
     ocpp_charger_id: "ME_CHARGER",
     server_ocpp_url: "ws://54.197.192.96:8080/steve/websocket/CentralSystemService",
-    ocpp_auth_key: "OpenSesame"
+    ocpp_auth_key: "OpenSesame",
+    num_connectors: DEFAULT_NUM_CONNECTORS,
+    ocpp_without_plc_enabled: true
 };
+
+// Datos mock para IPs de conectores Modbus TCP
+let connector_ips = [];
+for (let i = 0; i < DEFAULT_NUM_CONNECTORS; i++) {
+    connector_ips.push(`192.168.0.${4 + i}`);
+}
 
 let logger_nvs_data = {
     ip_logger: "192.168.0.2",
@@ -161,8 +174,12 @@ app.post('/post_logger_data', (req, res) => {
 app.get('/get_general_data', (req, res) => {
     // Logic to handle GET request
     console.log('GET /get_general_data');
-    console.log(ocpp_nvs_data_t);
-    res.send(ocpp_nvs_data_t);
+    // Solo devolver campos de configuración general (sin num_connectors ni ocpp_without_plc_enabled)
+    res.send({
+        ocpp_charger_id: ocpp_nvs_data_t.ocpp_charger_id,
+        server_ocpp_url: ocpp_nvs_data_t.server_ocpp_url,
+        ocpp_auth_key: ocpp_nvs_data_t.ocpp_auth_key
+    });
 });
 
 
@@ -171,8 +188,113 @@ app.post('/post_general_data', (req, res) => {
     // Logic to handle POST request
     console.log('POST /post_general_data');
     console.log(req.body);
-    ocpp_nvs_data_t = req.body;
+    // Solo actualizar campos de configuración general (sin num_connectors ni ocpp_without_plc_enabled)
+    if (req.body.server_ocpp_url !== undefined) {
+        ocpp_nvs_data_t.server_ocpp_url = req.body.server_ocpp_url;
+    }
+    if (req.body.ocpp_charger_id !== undefined) {
+        ocpp_nvs_data_t.ocpp_charger_id = req.body.ocpp_charger_id;
+    }
+    if (req.body.ocpp_auth_key !== undefined) {
+        ocpp_nvs_data_t.ocpp_auth_key = req.body.ocpp_auth_key;
+    }
     res.send({ status: "ok" });
+});
+
+app.get('/get_connector_config', (req, res) => {
+    console.log('GET /get_connector_config');
+    const response = {
+        num_connectors: ocpp_nvs_data_t.num_connectors,
+        ocpp_without_plc_enabled: ocpp_nvs_data_t.ocpp_without_plc_enabled
+    };
+    // Incluir IPs solo si OCPP_WITHOUT_PLC está habilitado
+    if (ocpp_nvs_data_t.ocpp_without_plc_enabled) {
+        response.connector_ips = connector_ips;
+    }
+    res.send(response);
+});
+
+app.post('/post_connector_config', (req, res) => {
+    console.log('POST /post_connector_config');
+    console.log(req.body);
+    
+    // Validar y actualizar num_connectors si está presente
+    if (req.body.num_connectors !== undefined) {
+        const numConn = parseInt(req.body.num_connectors, 10);
+        if (isNaN(numConn) || numConn < MIN_NUM_CONNECTORS || numConn > MAX_NUM_CONNECTORS) {
+            res.status(400).send({ status: "error", message: `num_connectors must be between ${MIN_NUM_CONNECTORS} and ${MAX_NUM_CONNECTORS}` });
+            return;
+        }
+        ocpp_nvs_data_t.num_connectors = numConn;
+        // Ajustar array de IPs cuando cambia el número de conectores
+        if (ocpp_nvs_data_t.ocpp_without_plc_enabled) {
+            const newIps = [];
+            for (let i = 0; i < numConn - 1; i++) {
+                if (i < connector_ips.length) {
+                    newIps.push(connector_ips[i]);
+                } else {
+                    newIps.push(`192.168.0.${4 + i}`);
+                }
+            }
+            connector_ips = newIps;
+        }
+    }
+    
+    // Actualizar ocpp_without_plc_enabled si está presente
+    if (req.body.ocpp_without_plc_enabled !== undefined) {
+        ocpp_nvs_data_t.ocpp_without_plc_enabled = !!req.body.ocpp_without_plc_enabled;
+        // Si se deshabilita, limpiar IPs
+        if (!ocpp_nvs_data_t.ocpp_without_plc_enabled) {
+            connector_ips = [];
+        } else if (connector_ips.length === 0) {
+            // Si se habilita y no hay IPs, generar valores por defecto
+            const defaultIps = [];
+            for (let i = 0; i < ocpp_nvs_data_t.num_connectors - 1; i++) {
+                defaultIps.push(`192.168.0.${4 + i}`);
+            }
+            connector_ips = defaultIps;
+        }
+    }
+    
+    // Actualizar connector_ips si está presente
+    if (req.body.connector_ips !== undefined) {
+        if (Array.isArray(req.body.connector_ips)) {
+            const validIps = req.body.connector_ips.filter(ip => typeof ip === 'string' && ip.length > 0 && ip.length < 16);
+            if (validIps.length <= MAX_NUM_CONNECTORS) {
+                connector_ips = validIps;
+            } else {
+                res.status(400).send({ status: "error", message: `Too many IPs (max ${MAX_NUM_CONNECTORS})` });
+                return;
+            }
+        } else {
+            res.status(400).send({ status: "error", message: "connector_ips must be an array" });
+            return;
+        }
+    }
+    
+    res.send({ status: "ok" });
+});
+
+// Mantener endpoints antiguos para compatibilidad (deprecated)
+app.get('/get_connector_ips', (req, res) => {
+    console.log('GET /get_connector_ips (deprecated, use /get_connector_config)');
+    res.send(connector_ips);
+});
+
+app.post('/post_connector_ips', (req, res) => {
+    console.log('POST /post_connector_ips (deprecated, use /post_connector_config)');
+    console.log(req.body);
+    if (Array.isArray(req.body)) {
+        const validIps = req.body.filter(ip => typeof ip === 'string' && ip.length > 0 && ip.length < 16);
+        if (validIps.length <= MAX_NUM_CONNECTORS) {
+            connector_ips = validIps;
+            res.send({ status: "ok" });
+        } else {
+            res.status(400).send({ status: "error", message: `Too many IPs (max ${MAX_NUM_CONNECTORS})` });
+        }
+    } else {
+        res.status(400).send({ status: "error", message: "Expected JSON array" });
+    }
 });
 
 app.post('/reboot', (req, res) => {
@@ -184,7 +306,12 @@ app.post('/reboot', (req, res) => {
 // Endpoint para obtener lista de conectores
 app.get('/connectors', (req, res) => {
     console.log('GET /connectors');
-    res.send(connectors);
+    // Devolver array de IDs de conectores: 0 (CP) y luego 1, 2, 3, ... hasta num_connectors - 1
+    const connectorIds = [];
+    for (let i = 0; i < ocpp_nvs_data_t.num_connectors; i++) {
+        connectorIds.push(i);
+    }
+    res.send(connectorIds);
 });
 
 // Endpoint para EVSE por conector

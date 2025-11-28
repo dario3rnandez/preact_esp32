@@ -27,7 +27,7 @@ class DataServiceClass {
         let url = this.apiRoot + endpoint;
         let response;
         try{
-            if(NODE_ENV === "development"){
+        if(NODE_ENV === "development"){
                 console.log("Fetch - Options: ", options);
             }
             response = await fetch(url, options);
@@ -57,7 +57,7 @@ class DataServiceClass {
             }
             
             if(NODE_ENV === "development"){
-                console.log("Response: ", response_json);
+            console.log("Response: ", response_json);
             }
             return response_json;
         }catch(error){

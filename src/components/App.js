@@ -1,4 +1,4 @@
-import { h, Component, createContext  } from "preact";
+import { h, Component, createContext } from "preact";
 
 
 import Sidebar from "./Layout.Sidebar.js";
@@ -13,6 +13,7 @@ import EraseNvs from "./Path.erase_nvs.js";
 import FormatPartition from "./Path.format_partition.js";
 import Restart from "./Path.restart.js";
 import Login from "./Path.Login.js";
+import History from "./Path.History.js";
 import menuConfig from '../menuConfig';
 import { DASHBOARD_TITLE } from '../menuConfig';
 
@@ -25,47 +26,47 @@ export default class App extends Component {
         const allowedRoutes = menuConfig.map(item => item.route);
         this.allowedRoutes = allowedRoutes;
         this.state = {
-            path : allowedRoutes[0],
+            path: allowedRoutes[0],
             isLoggedIn: false
         }
     }
-    navigation(){
+    navigation() {
         return {
-            setPath:(newPath)=>{
+            setPath: (newPath) => {
                 if (this.allowedRoutes.includes(newPath)) {
-                    this.setState({path:newPath});
+                    this.setState({ path: newPath });
                 } else {
-                    this.setState({path:this.allowedRoutes[0]});
+                    this.setState({ path: this.allowedRoutes[0] });
                 }
             },
             setLoggedIn: (value) => {
-                this.setState({isLoggedIn: value});
+                this.setState({ isLoggedIn: value });
             },
-            path:this.state.path,
-            closeSidebarMobile:()=>{
+            path: this.state.path,
+            closeSidebarMobile: () => {
                 this.closeSidebarMobile()
             }
         }
     }
 
-    currentView(){
+    currentView() {
         if (!this.allowedRoutes.includes(this.state.path)) {
-            this.setState({path: this.allowedRoutes[0]});
+            this.setState({ path: this.allowedRoutes[0] });
             return null;
         }
         return this.view(this.state.path)
     }
 
-    toggleSidebar(){
+    toggleSidebar() {
         document.querySelector(".sidebar").classList.toggle("show-mobile");
     }
 
-    closeSidebarMobile(){
+    closeSidebarMobile() {
         document.querySelector(".sidebar").classList.remove("show-mobile");
     }
 
-    view(path){
-        switch(path){
+    view(path) {
+        switch (path) {
             case "general_config":
                 return (
                     <GeneralConfig nav={this.navigation()} />
@@ -98,11 +99,15 @@ export default class App extends Component {
                 return (
                     <Restart nav={this.navigation()} />
                 )
-            
-        }  
+            case "history":
+                return (
+                    <History nav={this.navigation()} />
+                )
+
+        }
     }
 
-    render(){
+    render() {
         if (typeof window !== 'undefined') {
             document.title = DASHBOARD_TITLE;
         }

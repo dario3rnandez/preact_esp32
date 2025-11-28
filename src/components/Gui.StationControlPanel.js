@@ -98,11 +98,11 @@ export default function NetworkConfigControlPanel(props) {
         // Solo copiar el valor del campo que se está editando a su estado temporal
         // No sobrescribir otros campos que puedan estar siendo editados
         if (field === "ip") {
-            setTempIp(ip);
+        setTempIp(ip);
         } else if (field === "netmask") {
-            setTempNetmask(netmask);
+        setTempNetmask(netmask);
         } else if (field === "gateway") {
-            setTempGateway(gateway);
+        setTempGateway(gateway);
         }
         setEditing(prev => ({ ...prev, [field]: true }));
     };

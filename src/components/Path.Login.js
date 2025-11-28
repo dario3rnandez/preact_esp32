@@ -13,7 +13,7 @@ export default class Login extends Component {
     handleSubmit = (e) => {
         e.preventDefault();
         // Credenciales hardcodeadas para ejemplo
-        if (this.state.username === "admin" && this.state.password === "admin") {
+        if (this.state.username === "admin" && this.state.password === "ME_Smart_2025") {
             this.props.nav.setLoggedIn(true);
             this.props.nav.setPath("general_config");
         } else {

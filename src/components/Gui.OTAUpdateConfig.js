@@ -79,7 +79,12 @@ export default function OTAUpdateConfigControlPanel(props) {
     };
 
     const checkUpdateStatus = () => {
+        let checkCount = 0;
+        const maxChecks = 15; // Máximo 30 segundos (15 * 2s)
+
         const checkInterval = setInterval(() => {
+            checkCount++;
+
             DataService.post("/OTAstatus", {})
                 .then(response => {
                     if (response.ota_update_status === 1) {
@@ -93,9 +98,18 @@ export default function OTAUpdateConfigControlPanel(props) {
                     }
                 })
                 .catch(() => {
-                    clearInterval(checkInterval);
-                    setPostError("Error al verificar estado");
-                    setPosting(false);
+                    // Si no responde después de varios intentos, asumimos que se reinició
+                    if (checkCount >= 3) {
+                        clearInterval(checkInterval);
+                        startReboot();
+                        setPostSuccess("Actualización completa. Reiniciando...");
+                    }
+                    // Si aún no alcanzamos el máximo de intentos, seguimos esperando
+                    if (checkCount >= maxChecks) {
+                        clearInterval(checkInterval);
+                        setPostError("Tiempo de espera agotado");
+                        setPosting(false);
+                    }
                 });
         }, 2000); // Verificar cada 2 segundos
     };

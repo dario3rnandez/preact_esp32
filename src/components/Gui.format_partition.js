@@ -275,12 +275,12 @@ export default function FormatPartition(props) {
             <legend>Gestión de partición</legend>
             
             <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <button
-                    class={`button primary ${posting ? "is-loading" : ""}`}
+            <button
+                class={`button primary ${posting ? "is-loading" : ""}`}
                     onClick={formatPartition}
                     disabled={posting || loadingFiles}>
-                    <IUpload /> Formatear partición
-                </button>
+                <IUpload /> Formatear partición
+            </button>
                 
                 <button
                     class={`button ${loadingFiles ? "is-loading" : ""}`}

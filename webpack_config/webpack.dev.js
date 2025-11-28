@@ -106,7 +106,7 @@ const devConfig = {
         new webpack.DefinePlugin({
             'process.env.EVSE_VARIANT': JSON.stringify(variant),
             'process.env.NODE_ENV': JSON.stringify('development')
-        })
+		})
     ]
 };
 module.exports = merge(commonConfig, devConfig);

@@ -21,6 +21,7 @@ const VARIANT_MODULES = {
     ...COMMON_MODULES,
     { route: "certificates_config", label: "OCPP certificados", icon: "IServer" },
     { route: "connectors", label: "Conectores", icon: "IEvse" },
+    { route: "history", label: "Historial", icon: "IClock" },
     { route: "erase_nvs", label: "Borrar NVS", icon: "IServer" },
     { route: "format_partition", label: "Formatear partición", icon: "IServer" }
   ],

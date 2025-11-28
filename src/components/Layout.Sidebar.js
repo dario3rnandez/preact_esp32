@@ -12,6 +12,7 @@ import IServer from "./icons/IServer.svg";
 import IControls from "./icons/IControls.svg";
 import IPower from "./icons/IPower.svg";
 import IEvse from "./icons/IEvse.svg";
+import IClock from "./icons/IClock.svg";
 
 export default class Sidebar extends Component {
 
@@ -20,7 +21,7 @@ export default class Sidebar extends Component {
     }
 
     render(props) {
-        const icons = { IWifi, ILock, IMatthLogo, IServer, IControls, IPower, IEvse };
+        const icons = { IWifi, ILock, IMatthLogo, IServer, IControls, IPower, IEvse, IClock };
         return (
             <aside class="sidebar">
                 <div class="sb-header">

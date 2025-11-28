@@ -8,6 +8,9 @@ const API_ENDPOINT_EV_STATUS   = "/status_ev";
 const API_ENDPOINT_EVSE_STATUS   = "/status_evse";
 const API_ENDPOINT_USER_AUTHORIZATION   = "/user_authorization";
 const API_ENDPOINT_CERTIFICATE   = "/ca_cert";
+const API_ENDPOINT_GET_CONNECTOR_CONFIG = "/get_connector_config";
+const API_ENDPOINT_POST_CONNECTOR_CONFIG = "/post_connector_config";
+const API_ENDPOINT_CONNECTORS = "/connectors";
 
 export {
 	API_ROOT,
@@ -16,7 +19,10 @@ export {
 	API_ENDPOINT_EV_STATUS,
 	API_ENDPOINT_EVSE_STATUS,
 	API_ENDPOINT_USER_AUTHORIZATION,
-	API_ENDPOINT_CERTIFICATE
+	API_ENDPOINT_CERTIFICATE,
+	API_ENDPOINT_GET_CONNECTOR_CONFIG,
+	API_ENDPOINT_POST_CONNECTOR_CONFIG,
+	API_ENDPOINT_CONNECTORS
 };
 
 export const AUTH_MODE = {
@@ -24,3 +30,8 @@ export const AUTH_MODE = {
 	AUTH_OCPP: 'OCPP',
 	AUTH_RFID: 'RFID'
 };
+
+// Constantes para número de conectores (deben coincidir con general_config.h)
+export const MIN_NUM_CONNECTORS = 1;
+export const MAX_NUM_CONNECTORS = 4;
+export const DEFAULT_NUM_CONNECTORS = 2;

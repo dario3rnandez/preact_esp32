@@ -12,7 +12,7 @@ import IUpload from "./icons/IUpload.svg";
 import DateFormatter from "../DateFormatter";
 import { useRebootCountdown } from "./Util.reboot";
 import { DASHBOARD_VARIANT } from '../menuConfig';
-import { AUTH_MODE } from '../constants';
+import { AUTH_MODE, MIN_NUM_CONNECTORS, MAX_NUM_CONNECTORS, DEFAULT_NUM_CONNECTORS } from '../constants';
 
 export default function GeneralConfigControlPanel(props) {
     if (DASHBOARD_VARIANT === 'OCPP') {
@@ -54,16 +54,16 @@ export default function GeneralConfigControlPanel(props) {
             if (fetching) return;
             setFetching(true);
             DataService.get("/get_general_data")
-                .then(resp => {
-                    console.log(resp);
-                    setBackendUrl(resp.server_ocpp_url);
-                    setTempBackendUrl(resp.server_ocpp_url);
+                .then((generalResp) => {
+                    console.log(generalResp);
+                    setBackendUrl(generalResp.server_ocpp_url);
+                    setTempBackendUrl(generalResp.server_ocpp_url);
 
-                    setChargeBoxId(resp.ocpp_charger_id);
-                    setTempChargeBoxId(resp.ocpp_charger_id);
+                    setChargeBoxId(generalResp.ocpp_charger_id);
+                    setTempChargeBoxId(generalResp.ocpp_charger_id);
                     
-                    setAuthorizationKey(resp.ocpp_auth_key);
-                    setTempAuthKey(resp.ocpp_auth_key);
+                    setAuthorizationKey(generalResp.ocpp_auth_key);
+                    setTempAuthKey(generalResp.ocpp_auth_key);
                     
                     setShowData(true);
                     if (!initialLoad) {
@@ -83,13 +83,11 @@ export default function GeneralConfigControlPanel(props) {
                 ocpp_charger_id: temp_ocpp_charger_id,
                 ocpp_auth_key: temp_ocpp_auth_key
             })
-                .then(resp => {
-                    console.log(resp.status);
-                    if (resp.status === "ok") {
-                        
+                .then((generalResp) => {
+                    console.log(generalResp?.status);
+                    if (generalResp?.status === "ok") {
                         fetchValues(); // Recargar datos
                         setPostSuccess("Cambios guardados exitosamente");  
-                        startReboot();
                     }
                 })
                 .catch(() => setPostError("Error al guardar cambios"))
@@ -100,11 +98,11 @@ export default function GeneralConfigControlPanel(props) {
             // Solo copiar el valor del campo que se está editando a su estado temporal
             // No sobrescribir otros campos que puedan estar siendo editados
             if (field === "server_ocpp_url") {
-                setTempBackendUrl(server_ocpp_url);
+            setTempBackendUrl(server_ocpp_url);
             } else if (field === "ocpp_charger_id") {
-                setTempChargeBoxId(ocpp_charger_id);
+            setTempChargeBoxId(ocpp_charger_id);
             } else if (field === "ocpp_auth_key") {
-                setTempAuthKey(ocpp_auth_key);
+            setTempAuthKey(ocpp_auth_key);
             }
             setEditing(prev => ({ ...prev, [field]: true }));
         };
@@ -114,7 +112,9 @@ export default function GeneralConfigControlPanel(props) {
                 <input
                     type="text"
                     value={value}
-                    onChange={e => setter(e.target.value)}
+                    onChange={e => {
+                        setter(e.target.value);
+                    }}
                     onBlur={() => setEditing(prev => ({ ...prev, [field]: false }))}
                     autoFocus
                     class="editable-input"
@@ -128,6 +128,7 @@ export default function GeneralConfigControlPanel(props) {
                 </span>
             );
         };
+
 
         return (
             <fieldset class="is-col">
